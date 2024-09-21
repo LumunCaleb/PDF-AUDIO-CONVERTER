@@ -1,0 +1,7 @@
+streamlit
+pyttsx3
+PyPDF2
+os
+tempfile
+pydub
+pydub.playback
