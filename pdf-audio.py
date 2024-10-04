@@ -1,42 +1,27 @@
-#Additional thread feature
 import streamlit as st
-import pyttsx3
 from PyPDF2 import PdfReader
+from gtts import gTTS
 import os
 
-# Function to convert PDF to audio and save it as an MP3 file
-def convert_pdf_to_audio(pdf_file, reading_speed=1.0, voice_type="Male", pages=None):
-    engine = pyttsx3.init()
-    engine.setProperty('rate', int(150 * reading_speed))
-    
-    voices = engine.getProperty('voices')
-    voice_mapping = {
-        "Male": voices[0].id,  # Default Microsoft David
-        "Female": voices[1].id,  # Default Microsoft Zira
-    }
-    
-    selected_voice = voice_mapping.get(voice_type, voices[0].id)
-    engine.setProperty('voice', selected_voice)
-    
+# Function to convert PDF to audio and save it as an MP3 file using gTTS
+def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
     pdf_reader = PdfReader(pdf_file)
     text = ""
     
     if pages is not None:
-        # Extract specific pages
         selected_pages = extract_pages(pdf_reader, pages)
         for page in selected_pages:
             text += page.extract_text() if page.extract_text() else ""
     else:
-        # Read all pages if no specific pages provided
         for page in pdf_reader.pages:
             text += page.extract_text() if page.extract_text() else ""
     
     if not text:
         return None
     
+    tts = gTTS(text, lang='en', slow=False)  # 'slow=False' sets normal speed
     output_audio_file = "temp_audio.mp3"
-    engine.save_to_file(text, output_audio_file)
-    engine.runAndWait()
+    tts.save(output_audio_file)
     
     return output_audio_file
 
