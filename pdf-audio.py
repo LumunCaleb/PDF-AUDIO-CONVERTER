@@ -87,8 +87,6 @@ else:
         pdf_upload_interface()
 
 
-
-
 # import streamlit as st
 # from PyPDF2 import PdfReader
 # from gtts import gTTS
