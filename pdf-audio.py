@@ -22,12 +22,15 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
     if not text:
         return None
     
-    # Convert text to audio using gTTS
+     # Convert text to audio using gTTS
     tts = gTTS(text, lang='en', slow=False)
-    output_audio_file = "temp_audio.mp3"
-    tts.save(output_audio_file)
     
-    return output_audio_file
+    # Use BytesIO to save the audio file in memory
+    audio_buffer = BytesIO()
+    tts.save(audio_buffer)
+    audio_buffer.seek(0)  # Move to the beginning of the BytesIO buffer
+    
+    return audio_buffer
 
 # Function to extract specific pages based on user input
 def extract_pages(pdf_reader, page_selection):
@@ -91,27 +94,29 @@ if uploaded_file is not None:
         st.write(f"This PDF has {num_pages} pages.")
         page_selection = st.text_input("Enter Pages (e.g., 1-3, 5, 7-9)", "")
     
-# Convert PDF to audio
-if st.button("Convert to Audio"):
-    st.write("Converting...")
-    if page_selection_option == "Entire Document":
-        page_selection = None  # Process the entire document if this option is chosen
-    audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
-    
-    if audio_path:
-        st.write("Conversion complete.")
+    # Convert PDF to audio
+    if st.button("Convert to Audio"):
+        st.write("Converting...")
+        if page_selection_option == "Entire Document":
+            page_selection = None  # Process the entire document if this option is chosen
+        audio_buffer = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
         
-        # Allow the user to download the audio file
-        with open(audio_path, 'rb') as audio_file:
-            audio_bytes = audio_file.read()
+        if audio_buffer:
+            st.write("Conversion complete.")
+            
+            # Allow the user to play the audio using Streamlit's audio component
+            st.audio(audio_buffer, format='audio/mp3')
+            
+            # Allow the user to download the audio file
+            audio_buffer.seek(0)  # Ensure we go back to the start of the BytesIO buffer
             st.download_button(
                 label="Download Audio",
-                data=audio_bytes,
+                data=audio_buffer,
                 file_name="output.mp3",
                 mime="audio/mp3"
             )
-    else:
-        st.write("No text found in the PDF.")
+        else:
+            st.write("No text found in the PDF.")
 else:
     st.write("Upload a PDF to get started.")
 
