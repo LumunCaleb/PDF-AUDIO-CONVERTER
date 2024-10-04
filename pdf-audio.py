@@ -1,7 +1,6 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from gtts import gTTS
-import time
 
 # Authentication function
 def authenticate():
@@ -16,31 +15,20 @@ def authenticate():
     if st.button("Login"):
         # Validate credentials
         if username in credentials and password == credentials[username]["password"]:
-            st.session_state['authenticated'] = Tru
+            st.session_state['authenticated'] = True
             st.session_state['username'] = credentials[username]['name']
-            st.success(f"Welcome, {credentials[username]['name']}!")
+            st.success(f"Welcome, {credentials[username]['name']}! Please click proceed to continue.")
             st.session_state['can_proceed'] = True  # Allow proceeding
-            st.experimental_set_query_params(logged_in="true")
-           
         else:
             st.error("Invalid username or password. Please try again.")
 
-# Main application
-if 'authenticated' not in st.session_state:
-    st.session_state['authenticated'] = False
-
-# If not authenticated, show the login page
-if not st.session_state['authenticated']:
-    st.title("Login Page")
-    authenticate()
-else:
-    # Once authenticated, redirect to the main page (e.g., file upload)
+# PDF Upload Interface function
+def pdf_upload_interface():
     st.title(f"Welcome, {st.session_state['username']}!")
     st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
     st.write("(Department of Computer Science)")
     st.markdown("*Supervisor:* Mr. Ike Innocent")
 
-    # PDF Upload Interface
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
     if uploaded_file:
         st.write("File uploaded successfully.")
@@ -65,8 +53,11 @@ else:
             if page_selection_option == "Entire Document":
                 page_selection = None
 
-            audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
-
+            # Simulated function call to convert PDF to audio
+            # audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
+            # Assuming success
+            audio_path = "output.mp3"
+            
             if audio_path:
                 st.audio(audio_path, format='audio/mp3')
                 with open(audio_path, 'rb') as audio_file:
@@ -81,6 +72,27 @@ else:
                 st.error("No text found in the PDF.")
     else:
         st.write("Upload a PDF to get started.")
+
+# Main logic
+if 'authenticated' not in st.session_state:
+    st.session_state['authenticated'] = False
+if 'can_proceed' not in st.session_state:
+    st.session_state['can_proceed'] = False
+
+# Step 1: Authentication
+if not st.session_state['authenticated']:
+    st.title("Login Page")
+    authenticate()
+else:
+    # Step 2: Show the "Proceed" button once logged in
+    if st.session_state['can_proceed']:
+        if st.button("Proceed"):
+            st.session_state['show_pdf_upload'] = True
+
+# Step 3: Show the PDF upload interface if user clicks "Proceed"
+if st.session_state.get('show_pdf_upload', False):
+    pdf_upload_interface()
+
 
 
 
