@@ -82,7 +82,7 @@ def extract_pages(pdf_reader, page_selection):
 # Streamlit App Interface
 st.title("PDF to Audio Converter")
 st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
-st.markdown("Departmet of Computer Science")
+st.markdown("<u>Departmet of Computer Science</u>")
 st.markdown("*Supervisor:* Mr. Ike Innocent")
 
 # Upload the PDF file
