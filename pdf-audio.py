@@ -80,7 +80,7 @@ def extract_pages(pdf_reader, page_selection):
     
     # Parse the input to handle ranges and specific pages
     selections = page_selection.split(",")
-    
+
     for sel in selections:
         sel = sel.strip()
         if "-" in sel:
@@ -114,51 +114,51 @@ def extract_pages(pdf_reader, page_selection):
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
+# If not authenticated, show the login form
 if not st.session_state['authenticated']:
     st.title("Login Page")
-    if authenticate():
-        st.experimental_rerun()  # Refresh the page upon successful login
+    authenticate()
 else:
     # Content for authenticated users
     st.title("Welcome to the PDF to Audio Converter")
     st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
     st.write("(Department of Computer Science)")
     st.markdown("*Supervisor:* Mr. Ike Innocent")
-    
+
     # Upload the PDF file
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
     if uploaded_file is not None:
         st.write("File uploaded successfully.")
-        
+
         # Voice selection
         voice_type = st.selectbox("Select Voice", ["Male", "Female"])
-        
+
         # Reading speed
         reading_speed = st.slider("Select Reading Speed", 0.5, 2.0, 1.0, 0.1)
-        
+
         # Page selection dropdown
         page_selection_option = st.selectbox("Select Pages", ["Entire Document", "Specific Pages"])
-        
+
         # Handle specific page input based on the dropdown selection
         page_selection = None
         if page_selection_option == "Specific Pages":
             num_pages = len(PdfReader(uploaded_file).pages)
             st.write(f"This PDF has {num_pages} pages.")
             page_selection = st.text_input("Enter Pages (e.g., 1-3, 5, 7-9)", "")
-        
+
         # Convert PDF to audio
         if st.button("Convert to Audio"):
             st.write("Converting...")
             if page_selection_option == "Entire Document":
                 page_selection = None  # Process the entire document if this option is chosen
             audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
-            
+
             if audio_path:
                 st.write("Conversion complete.")
-                
+
                 # Allow the user to play the audio using Streamlit's audio component
                 st.audio(audio_path, format='audio/mp3')
-                
+
                 # Allow the user to download the audio file
                 with open(audio_path, 'rb') as audio_file:
                     audio_bytes = audio_file.read()
