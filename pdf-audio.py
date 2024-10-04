@@ -70,7 +70,15 @@ else:
                 with open(audio_path, 'rb') as audio_file:
                     audio_bytes = audio_file.read()
                     st.download_button(
-                        label="
+                        label="Download Audio",
+                        data=audio_bytes,
+                        file_name="output.mp3",
+                        mime="audio/mp3"
+                    )
+            else:
+                st.error("No text found in the PDF.")
+    else:
+        st.write("Upload a PDF to get started.")
 
 
 
