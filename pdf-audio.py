@@ -82,7 +82,7 @@ def extract_pages(pdf_reader, page_selection):
 # Streamlit App Interface
 st.title("PDF to Audio Converter")
 st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
-st.write("(Departmet of Computer Science")
+st.write("(Departmet of Computer Science)")
 # st.markdown("<u>text</u>", unsafe_allow_html=True)  Use this to underline text
 st.markdown("*Supervisor:* Mr. Ike Innocent")
 
