@@ -1,47 +1,13 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from gtts import gTTS
-from io import BytesIO
+import os
 
-# # Function to extract specific pages based on user input
-# def extract_pages(pdf_reader, page_selection):
-#     pages = []
-#     num_pages = len(pdf_reader.pages)
-    
-#     # Parse the input to handle ranges and specific pages
-#     selections = page_selection.split(",")
-#     for sel in selections:
-#         sel = sel.strip()
-#         if "-" in sel:
-#             # Handle ranges like "1-3"
-#             try:
-#                 start, end = map(int, sel.split("-"))
-#                 if start > 0 and end <= num_pages and start <= end:
-#                     pages.extend(pdf_reader.pages[start - 1:end])
-#                 else:
-#                     st.write(f"Invalid range: {sel}")
-#             except ValueError:
-#                 st.write(f"Invalid range format: {sel}")
-#         else:
-#             # Handle specific pages
-#             try:
-#                 if sel.isdigit():
-#                     page_num = int(sel)
-#                     if 0 < page_num <= num_pages:
-#                         pages.append(pdf_reader.pages[page_num - 1])
-#                     else:
-#                         st.write(f"Invalid page number: {sel}")
-#                 else:
-#                     st.write(f"Invalid page number format: {sel}")
-#             except ValueError:
-#                 st.write(f"Unable to parse page number: {sel}")
-    
-#     return pages
 # Function to convert PDF to audio and save it as an MP3 file using gTTS
 def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
-    pdf_reader = PdfReader(BytesIO(pdf_file.read()))
+    pdf_reader = PdfReader(pdf_file)
     text = ""
-    
+
     if pages is not None:
         selected_pages = extract_pages(pdf_reader, pages)
         for page in selected_pages:
@@ -56,64 +22,25 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
             if page_text:
                 text += page_text
 
-    # Debugging: Display the extracted text length
+    # Debugging: Display the extracted text length and preview
     st.write("Extracted Text Length:", len(text))
     st.write("Extracted Text Preview:", text[:500])  # Display a preview of the first 500 characters
 
     if not text.strip():  # Check if text is empty or just whitespace
         st.write("No text found in the PDF.")
         return None
-    
-    # Convert text to audio using gTTS
+
+    # Convert text to audio using gTTS and save directly to a file
+    output_audio_file = "output.mp3"  # File name for the output audio
     try:
         tts = gTTS(text, lang='en', slow=False)
-        
-        # Use BytesIO to save the audio file in memory
-        audio_buffer = BytesIO()
-        tts.save(audio_buffer)
-        audio_buffer.seek(0)  # Move to the beginning of the BytesIO buffer
+        tts.save(output_audio_file)  # Save the audio to a file
 
         st.write("Audio conversion successful.")
-        return audio_buffer
+        return output_audio_file  # Return the file path for further use
     except Exception as e:
         st.write("Error during audio conversion:", e)
         return None
-# Function to convert PDF to audio and save it as an MP3 file using gTTS
-def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
-    pdf_reader = PdfReader(BytesIO(pdf_file.read()))
-    text = ""
-    
-    if pages is not None:
-        selected_pages = extract_pages(pdf_reader, pages)
-        for page in selected_pages:
-            page_text = page.extract_text() if page.extract_text() else ""
-            if page_text:
-                text += page_text
-            else:
-                st.write("No text found on the selected page.")
-    else:
-        for page in pdf_reader.pages:
-            page_text = page.extract_text() if page.extract_text() else ""
-            if page_text:
-                text += page_text
-    
-    # Debugging: Print the extracted text
-    st.write("Extracted Text:")
-    st.text(text)  # Display the extracted text in the app
-    
-    if not text:
-        st.write("No text found in the PDF.")
-        return None
-    
-    # Convert text to audio using gTTS
-    tts = gTTS(text, lang='en', slow=False)
-    
-    # Use BytesIO to save the audio file in memory
-    audio_buffer = BytesIO()
-    tts.save(audio_buffer)
-    audio_buffer.seek(0)  # Move to the beginning of the BytesIO buffer
-    
-    return audio_buffer
 
 # Streamlit App Interface
 st.title("PDF to Audio Converter")
@@ -144,27 +71,27 @@ if uploaded_file is not None:
         st.write("Converting...")
         if page_selection_option == "Entire Document":
             page_selection = None  # Process the entire document if this option is chosen
-        audio_buffer = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
+        audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
         
-        if audio_buffer:
+        if audio_path:
             st.write("Conversion complete.")
             
             # Allow the user to play the audio using Streamlit's audio component
-            st.audio(audio_buffer, format='audio/mp3')
+            st.audio(audio_path, format='audio/mp3')
             
             # Allow the user to download the audio file
-            audio_buffer.seek(0)  # Ensure we go back to the start of the BytesIO buffer
-            st.download_button(
-                label="Download Audio",
-                data=audio_buffer,
-                file_name="output.mp3",
-                mime="audio/mp3"
-            )
+            with open(audio_path, 'rb') as audio_file:
+                audio_bytes = audio_file.read()
+                st.download_button(
+                    label="Download Audio",
+                    data=audio_bytes,
+                    file_name="output.mp3",
+                    mime="audio/mp3"
+                )
         else:
             st.write("No text found in the PDF.")
 else:
     st.write("Upload a PDF to get started.")
-
 # import streamlit as st
 # import pyttsx3
 # from PyPDF2 import PdfReader
