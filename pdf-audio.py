@@ -81,6 +81,10 @@ def extract_pages(pdf_reader, page_selection):
 
 # Streamlit App Interface
 st.title("PDF to Audio Converter")
+st.write("**A Project by YUSUF ABDUL**")
+st.write("NACEST/COM/HND22/780")
+st.write("*Departmet of Computer Science*")
+st.write("*Supervisor:* Mr. Ike Innocent")
 
 # Upload the PDF file
 uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
