@@ -1,9 +1,7 @@
 import streamlit as st
-import time
 from PyPDF2 import PdfReader
-from gtts import gTTS
 
-# Authentication function
+# Function to authenticate user credentials
 def authenticate():
     credentials = {
         "Yusuf Abdul": {"name": "Yusuf Abdul", "password": "1234"},
@@ -18,16 +16,12 @@ def authenticate():
         if username in credentials and password == credentials[username]["password"]:
             st.session_state['authenticated'] = True
             st.session_state['username'] = credentials[username]['name']
-            st.success(f"Welcome, {credentials[username]['name']}!")  # Display success message
-            
-            # Mimic double-click with a short delay
-            time.sleep(1)  # Delay before transitioning to the upload page
-            st.session_state['show_upload'] = True  # Set the flag to show the upload interface
-            return  # Exit the function after setting the session state
+            st.success(f"Welcome, {credentials[username]['name']}!")
+            st.session_state['show_upload'] = True  # Set flag to show upload interface
         else:
             st.error("Invalid username or password. Please try again.")
 
-# PDF Upload Interface function
+# Function to handle PDF upload interface
 def pdf_upload_interface():
     st.title(f"Welcome, {st.session_state['username']}!")
     st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
@@ -91,6 +85,99 @@ else:
     # Step 2: Show the PDF upload interface only if authenticated
     if st.session_state.get('show_upload', False):
         pdf_upload_interface()
+# import streamlit as st
+# import time
+# from PyPDF2 import PdfReader
+# from gtts import gTTS
+
+# # Authentication function
+# def authenticate():
+#     credentials = {
+#         "Yusuf Abdul": {"name": "Yusuf Abdul", "password": "1234"},
+#         "Solomon Lange": {"name": "Solomon Lange", "password": "5678"}
+#     }
+
+#     username = st.text_input("Enter Username")
+#     password = st.text_input("Enter Password", type="password")
+
+#     if st.button("Login"):
+#         # Validate credentials
+#         if username in credentials and password == credentials[username]["password"]:
+#             st.session_state['authenticated'] = True
+#             st.session_state['username'] = credentials[username]['name']
+#             st.success(f"Welcome, {credentials[username]['name']}!")  # Display success message
+            
+#             # Mimic double-click with a short delay
+#             time.sleep(1)  # Delay before transitioning to the upload page
+#             st.session_state['show_upload'] = True  # Set the flag to show the upload interface
+#             return  # Exit the function after setting the session state
+#         else:
+#             st.error("Invalid username or password. Please try again.")
+
+# # PDF Upload Interface function
+# def pdf_upload_interface():
+#     st.title(f"Welcome, {st.session_state['username']}!")
+#     st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
+#     st.write("(Department of Computer Science)")
+#     st.markdown("*Supervisor:* Mr. Ike Innocent")
+
+#     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+#     if uploaded_file:
+#         st.write("File uploaded successfully.")
+        
+#         # Voice selection
+#         voice_type = st.selectbox("Select Voice", ["Male", "Female"])
+
+#         # Reading speed
+#         reading_speed = st.slider("Select Reading Speed", 0.5, 2.0, 1.0, 0.1)
+
+#         # Page selection dropdown
+#         page_selection_option = st.selectbox("Select Pages", ["Entire Document", "Specific Pages"])
+
+#         page_selection = None
+#         if page_selection_option == "Specific Pages":
+#             num_pages = len(PdfReader(uploaded_file).pages)
+#             st.write(f"This PDF has {num_pages} pages.")
+#             page_selection = st.text_input("Enter Pages (e.g., 1-3, 5, 7-9)", "")
+
+#         # Convert PDF to audio
+#         if st.button("Convert to Audio"):
+#             if page_selection_option == "Entire Document":
+#                 page_selection = None
+
+#             # Simulated function call to convert PDF to audio
+#             # audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
+#             # Assuming success
+#             audio_path = "output.mp3"
+            
+#             if audio_path:
+#                 st.audio(audio_path, format='audio/mp3')
+#                 with open(audio_path, 'rb') as audio_file:
+#                     audio_bytes = audio_file.read()
+#                     st.download_button(
+#                         label="Download Audio",
+#                         data=audio_bytes,
+#                         file_name="output.mp3",
+#                         mime="audio/mp3"
+#                     )
+#             else:
+#                 st.error("No text found in the PDF.")
+#     else:
+#         st.write("Upload a PDF to get started.")
+
+# # Main logic
+# if 'authenticated' not in st.session_state:
+#     st.session_state['authenticated'] = False
+#     st.session_state['show_upload'] = False  # Ensure this flag is initialized
+
+# # Step 1: Authentication
+# if not st.session_state['authenticated']:
+#     st.title("Login Page")
+#     authenticate()
+# else:
+#     # Step 2: Show the PDF upload interface only if authenticated
+#     if st.session_state.get('show_upload', False):
+#         pdf_upload_interface()
 
 # import streamlit as st
 # from PyPDF2 import PdfReader
