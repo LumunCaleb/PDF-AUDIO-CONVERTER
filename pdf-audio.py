@@ -5,67 +5,49 @@ import os
 
 # Authentication function
 def authenticate():
-    # Define the credentials (Username and Password)
     credentials = {
         "Yusuf Abdul": {"name": "Yusuf Abdul", "password": "1234"},
         "Solomon Lange": {"name": "Solomon Lange", "password": "5678"}
     }
 
-    # Prompt for username and password
     username = st.text_input("Enter Username")
     password = st.text_input("Enter Password", type="password")
 
-    # Button to submit credentials
     if st.button("Login"):
-        # Check if the username exists
-        if username in credentials:
-            # Verify the password
-            if password == credentials[username]["password"]:
-                st.session_state['authenticated'] = True  # Store authentication status
-                st.session_state['username'] = credentials[username]['name']
-                st.success(f"Welcome, {credentials[username]['name']}!")
-            else:
-                st.error("Incorrect password. Please try again.")
+        if username in credentials and password == credentials[username]["password"]:
+            st.session_state['authenticated'] = True
+            st.session_state['username'] = credentials[username]['name']
+            st.success(f"Welcome, {credentials[username]['name']}!")
         else:
-            st.error("Invalid username. Please try again.")
+            st.error("Invalid username or password. Please try again.")
 
 # Function to convert PDF to audio and save it as an MP3 file using gTTS
 def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
     pdf_reader = PdfReader(pdf_file)
     text = ""
 
-    if pages is not None:
+    if pages:
         selected_pages = extract_pages(pdf_reader, pages)
         for page in selected_pages:
-            page_text = page.extract_text() if page.extract_text() else ""
-            if page_text:
-                text += page_text
-            else:
-                st.write("No text found on the selected page.")
+            text += page.extract_text() or ""
     else:
         for page in pdf_reader.pages:
-            page_text = page.extract_text() if page.extract_text() else ""
-            if page_text:
-                text += page_text
+            text += page.extract_text() or ""
 
-    st.write("Extracted Text Length:", len(text))
-
-    if not text.strip():  # Check if text is empty or just whitespace
-        st.write("No text found in the PDF.")
+    if not text.strip():
+        st.error("No text found in the PDF.")
         return None
     
     output_audio_file = "output.mp3"
     try:
         tts = gTTS(text, lang='en', slow=False)
-        tts.save(output_audio_file)  # Save the audio to a file
-
-        st.write("Audio conversion successful.")
-        return output_audio_file  # Return the file path for further use
+        tts.save(output_audio_file)
+        return output_audio_file
     except Exception as e:
-        st.write("Error during audio conversion:", e)
+        st.error(f"Error during audio conversion: {e}")
         return None
 
-# Function to extract specific pages based on user input
+# Extract specific pages from the PDF
 def extract_pages(pdf_reader, page_selection):
     pages = []
     num_pages = len(pdf_reader.pages)
@@ -75,27 +57,11 @@ def extract_pages(pdf_reader, page_selection):
     for sel in selections:
         sel = sel.strip()
         if "-" in sel:
-            try:
-                start, end = map(int, sel.split("-"))
-                if 1 <= start <= num_pages and 1 <= end <= num_pages and start <= end:
-                    for i in range(start - 1, end):  # Zero-based index
-                        pages.append(pdf_reader.pages[i])
-                else:
-                    st.write(f"Invalid range: {sel}")
-            except ValueError:
-                st.write(f"Invalid range format: {sel}")
+            start, end = map(int, sel.split("-"))
+            pages.extend(pdf_reader.pages[start-1:end])
         else:
-            try:
-                if sel.isdigit():
-                    page_num = int(sel)
-                    if 1 <= page_num <= num_pages:
-                        pages.append(pdf_reader.pages[page_num - 1])  # Zero-based index
-                    else:
-                        st.write(f"Invalid page number: {sel}")
-                else:
-                    st.write(f"Invalid page number format: {sel}")
-            except ValueError:
-                st.write(f"Unable to parse page number: {sel}")
+            page_num = int(sel)
+            pages.append(pdf_reader.pages[page_num - 1])
 
     return pages
 
@@ -103,12 +69,10 @@ def extract_pages(pdf_reader, page_selection):
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# If not authenticated, show the login form
 if not st.session_state['authenticated']:
     st.title("Login Page")
     authenticate()
 else:
-    # Content for authenticated users
     st.title(f"Welcome, {st.session_state['username']}!")
     st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
     st.write("(Department of Computer Science)")
@@ -116,7 +80,7 @@ else:
 
     # Upload the PDF file
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
-    if uploaded_file is not None:
+    if uploaded_file:
         st.write("File uploaded successfully.")
 
         # Voice selection
@@ -128,7 +92,6 @@ else:
         # Page selection dropdown
         page_selection_option = st.selectbox("Select Pages", ["Entire Document", "Specific Pages"])
 
-        # Handle specific page input based on the dropdown selection
         page_selection = None
         if page_selection_option == "Specific Pages":
             num_pages = len(PdfReader(uploaded_file).pages)
@@ -137,18 +100,13 @@ else:
 
         # Convert PDF to audio
         if st.button("Convert to Audio"):
-            st.write("Converting...")
             if page_selection_option == "Entire Document":
-                page_selection = None  # Process the entire document if this option is chosen
+                page_selection = None
+
             audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
 
             if audio_path:
-                st.write("Conversion complete.")
-
-                # Allow the user to play the audio using Streamlit's audio component
                 st.audio(audio_path, format='audio/mp3')
-
-                # Allow the user to download the audio file
                 with open(audio_path, 'rb') as audio_file:
                     audio_bytes = audio_file.read()
                     st.download_button(
@@ -158,9 +116,10 @@ else:
                         mime="audio/mp3"
                     )
             else:
-                st.write("No text found in the PDF.")
+                st.error("No text found in the PDF.")
     else:
         st.write("Upload a PDF to get started.")
+
 
 
 # import streamlit as st
