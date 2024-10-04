@@ -23,7 +23,7 @@ def authenticate():
             # Mimic double-click with a short delay
             time.sleep(1)  # Delay before transitioning to the upload page
             st.session_state['show_upload'] = True  # Set the flag to show the upload interface
-            st.experimental_rerun()  # Rerun the app to show the next page
+            return  # Exit the function after setting the session state
         else:
             st.error("Invalid username or password. Please try again.")
 
@@ -81,6 +81,7 @@ def pdf_upload_interface():
 # Main logic
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
+    st.session_state['show_upload'] = False  # Ensure this flag is initialized
 
 # Step 1: Authentication
 if not st.session_state['authenticated']:
@@ -90,7 +91,6 @@ else:
     # Step 2: Show the PDF upload interface only if authenticated
     if st.session_state.get('show_upload', False):
         pdf_upload_interface()
-
 
 # import streamlit as st
 # from PyPDF2 import PdfReader
