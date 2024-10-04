@@ -18,6 +18,7 @@ def authenticate():
             st.session_state['authenticated'] = True
             st.session_state['username'] = credentials[username]['name']
             st.success(f"Welcome, {credentials[username]['name']}!")  # Display success message
+            st.session_state['show_upload'] = True  # Set the flag to show the upload interface
         else:
             st.error("Invalid username or password. Please try again.")
 
@@ -80,10 +81,11 @@ if 'authenticated' not in st.session_state:
 if not st.session_state['authenticated']:
     st.title("Login Page")
     authenticate()
+else:
+    # Step 2: Show the PDF upload interface only if authenticated
+    if st.session_state.get('show_upload', False):
+        pdf_upload_interface()
 
-# Step 2: Show the PDF upload interface once authenticated
-if st.session_state.get('authenticated', False):
-    pdf_upload_interface()
 
 
 
