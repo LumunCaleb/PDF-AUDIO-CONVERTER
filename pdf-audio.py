@@ -16,10 +16,10 @@ def authenticate():
     if st.button("Login"):
         # Validate credentials
         if username in credentials and password == credentials[username]["password"]:
-            st.session_state['authenticated'] = True
+            st.session_state['authenticated'] = Tru
             st.session_state['username'] = credentials[username]['name']
             st.success(f"Welcome, {credentials[username]['name']}!")
-             st.session_state['can_proceed'] = True  # Allow proceeding
+            st.session_state['can_proceed'] = True  # Allow proceeding
             st.experimental_set_query_params(logged_in="true")
            
         else:
