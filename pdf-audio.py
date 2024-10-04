@@ -21,19 +21,13 @@ def authenticate():
         if username in credentials:
             # Verify the password
             if password == credentials[username]["password"]:
+                st.session_state['authenticated'] = True  # Store authentication status
+                st.session_state['username'] = credentials[username]['name']
                 st.success(f"Welcome, {credentials[username]['name']}!")
-                # Store the login status in session state
-                st.session_state['authenticated'] = True
-                return True
             else:
                 st.error("Incorrect password. Please try again.")
-                return False
         else:
             st.error("Invalid username. Please try again.")
-            return False
-
-    # Return False if no login attempt has been made yet
-    return False
 
 # Function to convert PDF to audio and save it as an MP3 file using gTTS
 def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
@@ -112,11 +106,10 @@ if 'authenticated' not in st.session_state:
 # If not authenticated, show the login form
 if not st.session_state['authenticated']:
     st.title("Login Page")
-    if authenticate():
-        st.experimental_rerun()  # Rerun the app after login
+    authenticate()
 else:
     # Content for authenticated users
-    st.title("Welcome to the PDF to Audio Converter")
+    st.title(f"Welcome, {st.session_state['username']}!")
     st.markdown("A Project by **YUSUF ABDUL** - NACEST/COM/HND22/780")
     st.write("(Department of Computer Science)")
     st.markdown("*Supervisor:* Mr. Ike Innocent")
