@@ -17,8 +17,8 @@ def authenticate():
         if username in credentials and password == credentials[username]["password"]:
             st.session_state['authenticated'] = True
             st.session_state['username'] = credentials[username]['name']
-            st.success(f"Welcome, {credentials[username]['name']}!")
             st.session_state['can_proceed'] = True  # Allow proceeding
+            st.success(f"Welcome, {credentials[username]['name']}!")  # Display success message
         else:
             st.error("Invalid username or password. Please try again.")
 
@@ -85,17 +85,16 @@ if 'show_pdf_upload' not in st.session_state:
 if not st.session_state['authenticated']:
     st.title("Login Page")
     authenticate()
-else:
-    # Step 2: Show the "Proceed" button once logged in
-    if st.session_state['can_proceed'] and not st.session_state['show_pdf_upload']:
-        if st.button("Proceed"):
-            st.session_state['show_pdf_upload'] = True
 
-# Step 3: Show the PDF upload interface if user clicks "Proceed"
+# Step 2: Show "Proceed" button if the login is successful
+if st.session_state.get('authenticated') and not st.session_state['show_pdf_upload']:
+    st.success(f"Welcome, {st.session_state['username']}!")
+    if st.button("Proceed"):
+        st.session_state['show_pdf_upload'] = True
+
+# Step 3: Show the PDF upload interface once the user clicks "Proceed"
 if st.session_state.get('show_pdf_upload', False):
     pdf_upload_interface()
-
-
 
 
 
