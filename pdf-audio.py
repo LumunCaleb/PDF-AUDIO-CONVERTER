@@ -54,15 +54,13 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
             if page_text:
                 text += page_text
 
-    # Debugging: Display the extracted text length and preview
     st.write("Extracted Text Length:", len(text))
 
     if not text.strip():  # Check if text is empty or just whitespace
         st.write("No text found in the PDF.")
         return None
     
-    # Convert text to audio using gTTS and save directly to a file
-    output_audio_file = "output.mp3"  # File name for the output audio
+    output_audio_file = "output.mp3"
     try:
         tts = gTTS(text, lang='en', slow=False)
         tts.save(output_audio_file)  # Save the audio to a file
@@ -78,13 +76,11 @@ def extract_pages(pdf_reader, page_selection):
     pages = []
     num_pages = len(pdf_reader.pages)
     
-    # Parse the input to handle ranges and specific pages
     selections = page_selection.split(",")
 
     for sel in selections:
         sel = sel.strip()
         if "-" in sel:
-            # Handle ranges like "1-3"
             try:
                 start, end = map(int, sel.split("-"))
                 if 1 <= start <= num_pages and 1 <= end <= num_pages and start <= end:
@@ -95,7 +91,6 @@ def extract_pages(pdf_reader, page_selection):
             except ValueError:
                 st.write(f"Invalid range format: {sel}")
         else:
-            # Handle specific pages
             try:
                 if sel.isdigit():
                     page_num = int(sel)
@@ -117,7 +112,8 @@ if 'authenticated' not in st.session_state:
 # If not authenticated, show the login form
 if not st.session_state['authenticated']:
     st.title("Login Page")
-    authenticate()
+    if authenticate():
+        st.experimental_rerun()  # Rerun the app after login
 else:
     # Content for authenticated users
     st.title("Welcome to the PDF to Audio Converter")
@@ -172,7 +168,6 @@ else:
                 st.write("No text found in the PDF.")
     else:
         st.write("Upload a PDF to get started.")
-
 
 
 # import streamlit as st
