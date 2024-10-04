@@ -15,18 +15,23 @@ def authenticate():
     ssid = st.text_input("Enter SSID")
     password = st.text_input("Enter Password", type="password")
 
-    # Check if SSID exists
-    if ssid in credentials:
-        # Verify the password
-        if password == credentials[ssid]["password"]:
-            st.success(f"Welcome, {credentials[ssid]['name']}!")
-            return True
+    # Button to submit credentials
+    if st.button("Login"):
+        # Check if SSID exists
+        if ssid in credentials:
+            # Verify the password
+            if password == credentials[ssid]["password"]:
+                st.success(f"Welcome, {credentials[ssid]['name']}!")
+                return True
+            else:
+                st.error("Incorrect password. Please try again.")
+                return False
         else:
-            st.error("Incorrect password. Please try again.")
+            st.error("Invalid SSID. Please try again.")
             return False
-    else:
-        st.error("Invalid SSID. Please try again.")
-        return False
+
+    # Return False if no attempt to log in is made yet
+    return False
 
 # Function to convert PDF to audio and save it as an MP3 file using gTTS
 def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
