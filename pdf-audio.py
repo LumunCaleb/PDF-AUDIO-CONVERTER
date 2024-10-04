@@ -19,8 +19,9 @@ def authenticate():
             st.session_state['authenticated'] = True
             st.session_state['username'] = credentials[username]['name']
             st.success(f"Welcome, {credentials[username]['name']}!")
+             st.session_state['can_proceed'] = True  # Allow proceeding
             st.experimental_set_query_params(logged_in="true")
-            st.session_state['can_proceed'] = True  # Allow proceeding
+           
         else:
             st.error("Invalid username or password. Please try again.")
 
