@@ -3,9 +3,12 @@ from PyPDF2 import PdfReader
 from gtts import gTTS
 import os
 
+from io import BytesIO
+
 # Function to convert PDF to audio and save it as an MP3 file using gTTS
 def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
-    pdf_reader = PdfReader(pdf_file)
+    # Ensure that the uploaded file is properly read as bytes
+    pdf_reader = PdfReader(BytesIO(pdf_file.read()))
     text = ""
     
     if pages is not None:
@@ -19,7 +22,8 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
     if not text:
         return None
     
-    tts = gTTS(text, lang='en', slow=False)  # 'slow=False' sets normal speed
+    # Convert text to audio using gTTS
+    tts = gTTS(text, lang='en', slow=False)
     output_audio_file = "temp_audio.mp3"
     tts.save(output_audio_file)
     
@@ -87,41 +91,27 @@ if uploaded_file is not None:
         st.write(f"This PDF has {num_pages} pages.")
         page_selection = st.text_input("Enter Pages (e.g., 1-3, 5, 7-9)", "")
     
-    # Convert PDF to audio
-    if st.button("Convert to Audio"):
-        st.write("Converting...")
-        if page_selection_option == "Entire Document":
-            page_selection = None  # Process the entire document if this option is chosen
-        audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, voice_type, page_selection)
+# Convert PDF to audio
+if st.button("Convert to Audio"):
+    st.write("Converting...")
+    if page_selection_option == "Entire Document":
+        page_selection = None  # Process the entire document if this option is chosen
+    audio_path = convert_pdf_to_audio(uploaded_file, reading_speed, page_selection)
+    
+    if audio_path:
+        st.write("Conversion complete.")
         
-        if audio_path:
-            st.write("Conversion complete.")
-            
-            # Allow the user to play the audio using HTML5 Audio element
-            audio_file_path = f"./{audio_path}"
-            audio_file_url = f"data:audio/mp3;base64,{st.audio(open(audio_file_path, 'rb').read(), format='audio/mp3')}"
-            
-            st.markdown(
-                f"""
-                <audio controls>
-                    <source src="{audio_file_url}" type="audio/mp3">
-                    Your browser does not support the audio element.
-                </audio>
-                """,
-                unsafe_allow_html=True
+        # Allow the user to download the audio file
+        with open(audio_path, 'rb') as audio_file:
+            audio_bytes = audio_file.read()
+            st.download_button(
+                label="Download Audio",
+                data=audio_bytes,
+                file_name="output.mp3",
+                mime="audio/mp3"
             )
-
-            # Allow the user to download the audio file
-            with open(audio_path, 'rb') as audio_file:
-                audio_bytes = audio_file.read()
-                st.download_button(
-                    label="Download Audio",
-                    data=audio_bytes,
-                    file_name="output.mp3",
-                    mime="audio/mp3"
-                )
-        else:
-            st.write("No text found in the PDF.")
+    else:
+        st.write("No text found in the PDF.")
 else:
     st.write("Upload a PDF to get started.")
 
