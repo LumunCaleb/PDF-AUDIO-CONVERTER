@@ -29,7 +29,7 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
     if not text.strip():  # Check if text is empty or just whitespace
         st.write("No text found in the PDF.")
         return None
-
+    
     # Convert text to audio using gTTS and save directly to a file
     output_audio_file = "output.mp3"  # File name for the output audio
     try:
@@ -41,6 +41,43 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
     except Exception as e:
         st.write("Error during audio conversion:", e)
         return None
+
+# Function to extract specific pages based on user input
+def extract_pages(pdf_reader, page_selection):
+    pages = []
+    num_pages = len(pdf_reader.pages)
+    
+    # Parse the input to handle ranges and specific pages
+    selections = page_selection.split(",")
+    
+    for sel in selections:
+        sel = sel.strip()
+        if "-" in sel:
+            # Handle ranges like "1-3"
+            try:
+                start, end = map(int, sel.split("-"))
+                if 1 <= start <= num_pages and 1 <= end <= num_pages and start <= end:
+                    for i in range(start - 1, end):  # Zero-based index
+                        pages.append(pdf_reader.pages[i])
+                else:
+                    st.write(f"Invalid range: {sel}")
+            except ValueError:
+                st.write(f"Invalid range format: {sel}")
+        else:
+            # Handle specific pages
+            try:
+                if sel.isdigit():
+                    page_num = int(sel)
+                    if 1 <= page_num <= num_pages:
+                        pages.append(pdf_reader.pages[page_num - 1])  # Zero-based index
+                    else:
+                        st.write(f"Invalid page number: {sel}")
+                else:
+                    st.write(f"Invalid page number format: {sel}")
+            except ValueError:
+                st.write(f"Unable to parse page number: {sel}")
+
+    return pages
 
 # Streamlit App Interface
 st.title("PDF to Audio Converter")
