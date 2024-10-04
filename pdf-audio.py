@@ -24,7 +24,7 @@ def convert_pdf_to_audio(pdf_file, reading_speed=1.0, pages=None):
 
     # Debugging: Display the extracted text length and preview
     st.write("Extracted Text Length:", len(text))
-    st.write("Extracted Text Preview:", text[:500])  # Display a preview of the first 500 characters
+    # st.write("Extracted Text Preview:", text[:500])  # Display a preview of the first 500 characters
 
     if not text.strip():  # Check if text is empty or just whitespace
         st.write("No text found in the PDF.")
