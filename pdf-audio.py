@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from PyPDF2 import PdfReader
 from gtts import gTTS
 
@@ -18,7 +19,11 @@ def authenticate():
             st.session_state['authenticated'] = True
             st.session_state['username'] = credentials[username]['name']
             st.success(f"Welcome, {credentials[username]['name']}!")  # Display success message
+            
+            # Mimic double-click with a short delay
+            time.sleep(1)  # Delay before transitioning to the upload page
             st.session_state['show_upload'] = True  # Set the flag to show the upload interface
+            st.experimental_rerun()  # Rerun the app to show the next page
         else:
             st.error("Invalid username or password. Please try again.")
 
